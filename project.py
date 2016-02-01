@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 """
 Éditeur de Spyder
@@ -6,6 +7,8 @@ Ceci est un script temporaire.
 
 """
 
+=======
+>>>>>>> d8a7d2bbe6f0627edd461d7829c147816205cb0f
 import soccersimulator,soccersimulator.settings
 from soccersimulator import BaseStrategy, SoccerAction
 from soccersimulator import SoccerTeam, SoccerMatch
@@ -17,13 +20,18 @@ class RandomStrategy(BaseStrategy):
     def compute_strategy(self,state,id_team,id_player):
         return SoccerAction(Vector2D.create_random()-0.5,
                             Vector2D.create_random())
+<<<<<<< HEAD
 """
 ==========================1V1=====================================
 """
+=======
+
+>>>>>>> d8a7d2bbe6f0627edd461d7829c147816205cb0f
 class FoncerStrategy(BaseStrategy):
     def __init__(self):
         BaseStrategy.__init__(self,"Foncer")
     def compute_strategy(self,state,id_team,id_player):
+<<<<<<< HEAD
         return SoccerAction((state.ball.position-state.player(id_team,id_player).position),
                             Vector2D(150,45)-state.ball.position)
 
@@ -86,6 +94,21 @@ class QuickFollowStrategy(BaseStrategy):
 #team2=SoccerTeam("team2",[Player("t2j1",QuickCatchStrategy2v2())])
 team1=SoccerTeam("team1",[Player("t1j1",RandomStrategy()),Player("t1j2",RandomStrategy())])
 team2=SoccerTeam("team2",[Player("t2j1",QuickCatchStrategy2v2()),Player("t2j2",RandomStrategy())])
+=======
+        return SoccerAction((state.ball.position-state.player(1,0).position),
+                            Vector2D(150,45)-state.ball.position)
+
+class Strategy1(BaseStrategy):
+    def __init__(self):
+        BaseStrategy.__init__(self,"Foncer")
+    def compute_strategy(self,state,id_team,id_player):
+        return SoccerAction((state.ball.position-state.player(2,0).position),
+                            Vector2D(0,45)-state.ball.position)
+
+
+team1=SoccerTeam("team1",[Player("t1j1",FoncerStrategy())])
+team2=SoccerTeam("team2",[Player("t2j2",Strategy1())])
+>>>>>>> d8a7d2bbe6f0627edd461d7829c147816205cb0f
 match=SoccerMatch(team1,team2)
 match.play()
 soccersimulator.show(match)
@@ -96,4 +119,7 @@ tournoi.add_team(team2)
 
 tournoi.play()
 soccersimulator.show(tournoi)
+<<<<<<< HEAD
 
+=======
+>>>>>>> d8a7d2bbe6f0627edd461d7829c147816205cb0f
