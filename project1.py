@@ -31,7 +31,7 @@ class StateLessStrategy(BaseStrategy):
 #team1=SoccerTeam("team1",[Player("t1j1",RandomStrategy())])
 #team2=SoccerTeam("team2",[Player("t2j1",QuickCatchStrategy2v2())])
 team1=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(Smart1v1))])
-team2=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(Smart1v1)),Player("t1j2",StateLessStrategy(Smart1v1))])
+team2=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(Smart2v2)),Player("t1j2",StateLessStrategy(Smart2v2))])
 team4=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(Smart1v1)),Player("t1j2",StateLessStrategy(Smart1v1)),Player("t1j3",StateLessStrategy(Smart1v1)),Player("t1j4",StateLessStrategy(Smart1v1))])
 
 
