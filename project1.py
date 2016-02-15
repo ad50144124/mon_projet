@@ -25,8 +25,7 @@ class StateLessStrategy(BaseStrategy):
         self.info = dict()
     def compute_strategy(self,state,id_team,id_player):
         return self.decideur(SoccerStateDecorator(state,id_team,id_player,self.info))
-
-
+     
 
 #team1=SoccerTeam("team1",[Player("t1j1",RandomStrategy())])
 #team2=SoccerTeam("team2",[Player("t2j1",QuickCatchStrategy2v2())])

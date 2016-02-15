@@ -19,21 +19,23 @@ class SoccerStateDecorator:
         self.id_player=id_player
         self.info = info
         
-    @property#position (vecteur)
-    def pos(self):
+    @property
+    def pos(self):#position (vecteur)
         return self.state.player_state(self.id_team,self.id_player).position
 
-    @property#distance entre player et ball (float)
-    def d(self):
+    @property
+    def d(self):#distance entre player et ball (float)
         return self.state.ball.position.distance(self.pos)
     
-    @property#goal selon la team (vecteur)
-    def goal(self):
+    @property
+    def goal(self):#goal selon la team (vecteur)
         return Vector2D(150-(self.id_team-1)*150,45)
 
     @property   
     def d_vec(self):#distance (vecteur)
         return self.state.ball.position-self.state.player(self.id_team,self.id_player).position
+        
+        
         
     
 """
@@ -111,21 +113,21 @@ def Smart1v1(mystate):
     #distance enemie player to ball (vector)
     e_goal = Vector2D(150-(e_t-1)*150,45)
     #goal enemie (vector)
-    
     if (d <= e_d) and (d>5 or b_v.norm>2) and b_v.norm>0.01:
         v=b_v.norm
         #vitesse ball norme
         p_fin=0
         #condition initiale position en norme
+    
         while(v>=0.01):
             p_fin+=v
-            v-=v*0.06-(v**2)*0.01
+            v-= (v*0.06 + (v**2)*0.01)
         #calcule d'intégrale
         v=b_v.norm
         #réinitialisation
         vb=b_v
         #norme de vitesse
-        vb.scale(p_fin/v*0.4)
+        vb.scale(p_fin/v*0.9)
         #rendre unitaire et scalaire norme de position, position relative à la fin par rapport à position actuelle (0.4 est la constant de correction)
         vb+=b_p
         #position absolue
@@ -141,7 +143,6 @@ def Smart1v1(mystate):
         return SoccerAction(vb-p, Vector2D(0,0))
     #si je suis plus proche et ball a une vitesse éleve ,calculer la position à la fin est chercher la ball 
         
-        
     if (d <= e_d) and (d>2 and b_v.norm<=2):
         return SoccerAction(d_vec, Vector2D(0,0))
     #si je suis plus proche et ball est imoblile, chercher la ball
@@ -156,9 +157,10 @@ def Smart1v1(mystate):
         #se mettre à distance 10 par rapport à ball dans la direction de e_goal et éviter d'être trop proche de e_goal (en esperant enemie shoote ver e_goal)
         return SoccerAction(d_vec,Vector2D(0,0))
     # si j'ai moins de chance de ratrapper la ball plus rapide que l'autre, se mettre entre la ball et goal
-    
-    if ((d < 2) or (goal-b_p < goal-p)) and ((goal-p).norm < (goal-e_p).norm):
-        return SoccerAction(b_p-p, goal-b_p)
+
+    if goal-b_p < 12:
+
+        return SoccerAction(d_vec, goal-b_p)
         #fonceur strategie
     #si je peux shooter et je suis plus proche de goal que enemie,foncer 
     
@@ -174,8 +176,9 @@ def Smart1v1(mystate):
             s.scale(1.0/(goal-b_p).norm)
         return SoccerAction(d_vec,s)    
     #si j'ai la ball mais enemie est en face, essayer de faire une réflexion
-    
-    return SoccerAction(d_vec,goal-b_p)
+    s=goal-b_p
+    s.scale(1.0/(goal-b_p).norm)
+    return SoccerAction(d_vec,s)
     #fonceur
    
     
@@ -224,21 +227,19 @@ def Smart2v2(mystate):
     #distance enemie allie (vector)
     
     
-    if a_d<e_d+0.2 and a_d<ea_d+0.2 and a_d<d+0.2 and ((e_goal-a_p).norm<(e_goal-e_p).norm or (e_goal-a_p).norm<(e_goal-ea_p).norm) and ((e_p-a_p).norm<5 or (ea_p-a_p).norm<5):
+    if a_d<e_d-0.2 and a_d<ea_d-0.2 and a_d<d-0.2 and ((e_goal-a_p).norm<(e_goal-e_p).norm or (e_goal-a_p).norm<(e_goal-ea_p).norm) and ((e_p-a_p).norm<5 or (ea_p-a_p).norm<5):
         if p.y>45:
             s=-20
         else:
             s=20
-        return SoccerAction(d_vec+Vector2D(10-(mystate.id_team-1)*20,s),goal-b_p)
+        return SoccerAction(d_vec+Vector2D(20-(mystate.id_team-1)*40,s),goal-b_p)
+    #allie est le plus proche à ball, préparer à récupérer la passage
     
-    #allie est le plus proche à ball, préparer une passage
-    if d<2 and d<e_d+0.2 and d<ea_d+0.2 and d<a_d+0.2 and ((e_goal-p).norm<(e_goal-e_p).norm or (e_goal-p).norm<(e_goal-ea_p).norm) and ((e_p-p).norm<5 or (ea_p-p).norm<5):
+    if d<2 and d<e_d-0.2 and d<ea_d-0.2 and d<a_d-0.2 and ((e_goal-p).norm<(e_goal-e_p).norm or (e_goal-p).norm<(e_goal-ea_p).norm) and ((e_p-p).norm<5 or (ea_p-p).norm<5):
         s=a_p-b_p+Vector2D(10-(mystate.id_team-1)*20)
-        s.scale(0.6)        
+        s.scale(0.1)        
         return SoccerAction(d_vec,s)
-    
-    
-    
+    #passage
     
     return Smart1v1(mystate)
     
