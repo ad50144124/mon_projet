@@ -20,12 +20,12 @@ class SoccerStateDecorator:
         self.info = info
         
     @property
-    def pos(self):#position (vecteur)
+    def p(self):#position (vecteur)
         return self.state.player_state(self.id_team,self.id_player).position
 
     @property
     def d(self):#distance entre player et ball (float)
-        return self.state.ball.position.distance(self.pos)
+        return self.state.ball.position.distance(self.p)
     
     @property
     def goal(self):#goal selon la team (vecteur)
@@ -35,9 +35,25 @@ class SoccerStateDecorator:
     def d_vec(self):#distance (vecteur)
         return self.state.ball.position-self.state.player(self.id_team,self.id_player).position
         
+    @property
+    def b_v(self):#vitesse ball(vecteur)
+        return self.state.ball.vitesse
+        
+    @property
+    def b_p(self):#position ball(vecteur)
+        return self.state.ball.position
+        
+    @property
+    def e_goal(self):#goal d'enemie(vecteur)
+        return Vector2D(150-(3-self.id_team-1)*150,45)
         
         
-    
+        
+"""
+============================util===================================
+"""
+
+
 """
 ========================strategy===================================
 """
@@ -45,10 +61,121 @@ def random(mystate):
     return SoccerAction(Vector2D.create_random()-0.5,
                         Vector2D.create_random())
 
-def fonceur(mystate):
-    return SoccerAction((mystate.state.ball.position-mystate.state.player(mystate.id_team,mystate.id_player).position),
-                            Vector2D(150,45)-mystate.state.ball.position)
+def fonceur(m):
+    v=m.b_v.norm
+    #vitesse ball norme
+    p_fin=0
+    #condition initiale position en norme
+    
+    b=m.state.ball
+    n=0
+    if (m.goal-m.b_p).norm<30:
+        s=m.goal-m.b_p
+    else:
+        s=m.goal-m.b_p
+        s.scale(1.0/(m.goal-m.b_p).norm)
+        
+    while((b.position-m.p).norm>n):
+        b.next(Vector2D(0,0))
+        n+=1
+    a=m.d_vec
+    
+    if (m.goal-m.b_p).norm<30:
+        s=m.goal-m.b_p
+    else:
+        s=m.goal-m.b_p
+        s.scale(1.2/(m.goal-m.b_p).norm)
+    if m.d>2:
+        return SoccerAction(a, Vector2D(0,0))
+    return SoccerAction(a, s)
+    
+   
+def shooter(m):
+    b=m.state.ball
+    n=0
+    if (m.goal-m.b_p).norm<30:
+        s=m.goal-m.b_p
+    else:
+        s=m.goal-m.b_p
+        s.scale(1.0/(m.goal-m.b_p).norm)
+        
+    while((b.position-m.p).norm>n):
+        b.next(Vector2D(0,0))
+        n+=1
+    a=m.d_vec
+    s=m.goal-m.b_p
+    s.scale(0.5)
+    if m.d>2:
+        return SoccerAction(a, Vector2D(0,0))
+    return SoccerAction(a, s)
+    
+def reflexion(m):
+    b=m.state.ball
+    n=0
+      
+    while((b.position-m.p).norm>n):
+        b.next(Vector2D(0,0))
+        n+=1
+    a=m.d_vec
+    
+    if m.b_p.y>45:
+        s=90
+    else:
+        s=0
+    
+    s=Vector2D(m.p.x+10-(m.id_team-1)*20,s)-m.b_p
+
+    if m.d>2:
+        return SoccerAction(a, Vector2D(0,0))
+    return SoccerAction(a, s)
+    
+    
+def defent(m):
+    b_to_goal = m.e_goal-m.b_p
+    #distance ball to e_goal (vector)
+    b_to_goal_u = b_to_goal/b_to_goal.norm
+    #rendre vector unitaire
+    b_to_goal_u.scale(min(10,b_to_goal.norm-2))
+    #se mettre à distance 10 par rapport à ball dans la direction de e_goal et éviter d'être trop proche de e_goal (en esperant enemie shoote ver e_goal)
+    if m.d>2:
+        return SoccerAction(m.d_vec+b_to_goal_u, Vector2D(0,0))
+    return SoccerAction(m.d_vec+b_to_goal_u,m.goal-m.b_p)
+    
+def defent_l(m):
+    b_to_goal = m.e_goal-m.b_p
+    #distance ball to e_goal (vector)
+    b_to_goal_u = b_to_goal/b_to_goal.norm
+    #rendre vector unitaire
+    b_to_goal_u.scale(min(30,b_to_goal.norm-2))
+    #se mettre à distance 10 par rapport à ball dans la direction de e_goal et éviter d'être trop proche de e_goal (en esperant enemie shoote ver e_goal)
+    if m.d>2:
+        return SoccerAction(m.d_vec+b_to_goal_u, Vector2D(0,0))
+    return SoccerAction(m.d_vec+b_to_goal_u,m.goal-m.b_p)
                             
+def catchexact(m):
+    c=m.d_vec
+    p=m.p
+    b=m.state.ball
+    n=0
+    if (m.goal-m.b_p).norm<30:
+        s=m.goal-m.b_p
+    else:
+        s=m.goal-m.b_p
+        s.scale(1.0/(m.goal-m.b_p).norm)
+        
+    while((b.position-p).norm>n):
+        b.next(Vector2D(0,0))
+        n+=1
+    a=m.d_vec
+
+    if m.d>2:
+        return SoccerAction(a, Vector2D(0,0))
+    return SoccerAction(c, s) 
+    
+    
+    
+    
+    
 def QuickCatch(mystate):
     d=mystate.state.ball.position-mystate.state.player(mystate.id_team,mystate.id_player).position
     #print state.ball.position-state.player(2,0).position
@@ -96,7 +223,7 @@ def Smart1v1(mystate):
     b_v =mystate.state.ball.vitesse
     #ball vitesse (vector) 
     
-    p = mystate.pos
+    p = mystate.p
     #position player (vector)
     d = mystate.d
     #distance player to ball (float)  
@@ -113,41 +240,19 @@ def Smart1v1(mystate):
     #distance enemie player to ball (vector)
     e_goal = Vector2D(150-(e_t-1)*150,45)
     #goal enemie (vector)
-    if (d <= e_d) and (d>5 or b_v.norm>2) and b_v.norm>0.01:
-        v=b_v.norm
-        #vitesse ball norme
-        p_fin=0
-        #condition initiale position en norme
     
-        while(v>=0.01):
-            p_fin+=v
-            v-= (v*0.06 + (v**2)*0.01)
-        #calcule d'intégrale
-        v=b_v.norm
-        #réinitialisation
-        vb=b_v
-        #norme de vitesse
-        vb.scale(p_fin/v*0.9)
-        #rendre unitaire et scalaire norme de position, position relative à la fin par rapport à position actuelle (0.4 est la constant de correction)
-        vb+=b_p
-        #position absolue
-        if vb.x<0:
-            vb._x=-vb._x
-        if vb.y<0:
-            vb._y=-vb._y
-        if vb.x>150:
-            vb._x=300-vb._x
-        if vb.y>90:
-            vb._y=180-vb._y
-        #reflextion
-        return SoccerAction(vb-p, Vector2D(0,0))
+    if (d <= e_d) and (d>2 or b_v.norm>1) and b_v.norm>0.01:
+        b=mystate.state.ball
+        n=0
+        if (mystate.goal-mystate.b_p).norm<30:
+            s=mystate.goal-mystate.b_p
+        else:
+            s=mystate.goal-mystate.b_p
+            s.scale(1.0/(mystate.goal-mystate.b_p).norm)
+            
+        return SoccerAction(s, Vector2D(0,0))
     #si je suis plus proche et ball a une vitesse éleve ,calculer la position à la fin est chercher la ball 
         
-    if (d <= e_d) and (d>2 and b_v.norm<=2):
-        return SoccerAction(d_vec, Vector2D(0,0))
-    #si je suis plus proche et ball est imoblile, chercher la ball
-        
-
     if (d > e_d) and (d > 2):
         b_to_goal = e_goal-b_p
         #distance ball to e_goal (vector)
@@ -158,11 +263,6 @@ def Smart1v1(mystate):
         return SoccerAction(d_vec,Vector2D(0,0))
     # si j'ai moins de chance de ratrapper la ball plus rapide que l'autre, se mettre entre la ball et goal
 
-    if goal-b_p < 12:
-
-        return SoccerAction(d_vec, goal-b_p)
-        #fonceur strategie
-    #si je peux shooter et je suis plus proche de goal que enemie,foncer 
     
     if (d < 2) and ((goal-p).norm > (goal-e_p).norm) and (goal-p).norm>15:
         if b_p.y>45:
@@ -177,10 +277,45 @@ def Smart1v1(mystate):
         return SoccerAction(d_vec,s)    
     #si j'ai la ball mais enemie est en face, essayer de faire une réflexion
     s=goal-b_p
-    s.scale(1.0/(goal-b_p).norm)
+    s.scale(0.7/(goal-b_p).norm)
     return SoccerAction(d_vec,s)
     #fonceur
    
+    
+def Smart1v1ver2(m):
+    e_t = 3 - m.id_team
+    e_p = m.state.player(e_t,m.id_player).position
+    c=m.d_vec
+    p=m.p
+    b=m.state.ball
+    n=0
+    while((b.position-p).norm>n):
+        b.next(Vector2D(0,0))
+        n+=1
+    a=m.d_vec
+    
+    e_t = 3 - m.id_team
+    e_p = m.state.player(e_t,m.id_player).position
+    if (e_p-p).norm<40 and (m.goal-e_p).norm<(m.goal-p).norm:
+        if m.b_p.y>45:
+            s=90
+        else:
+            s=0
+        
+        s=Vector2D(m.p.x+10-(m.id_team-1)*20,s)-m.b_p
+    else:
+        if (m.goal-m.b_p).norm<30:
+            s=m.goal-m.b_p
+        else:
+            s=m.goal-m.b_p
+            s.scale(0.9/(m.goal-m.b_p).norm)
+        
+    
+    if m.d>2:
+        return SoccerAction(a, Vector2D(0,0))
+    return SoccerAction(c, s) 
+    
+    
     
     
 def Smart2v2(mystate):
@@ -241,7 +376,7 @@ def Smart2v2(mystate):
         return SoccerAction(d_vec,s)
     #passage
     
-    return Smart1v1(mystate)
+    return Smart1v1(Smart1v1ver2)
     
     
     
