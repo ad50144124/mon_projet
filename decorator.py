@@ -52,14 +52,33 @@ class SoccerStateDecorator:
 """
 ============================util===================================
 """
-
+def calculdepos(b,p):
+    bc=b.position.copy()
+    n=0
+    while((bc-p).norm>n):
+        b.next(Vector2D(0,0))
+        bc=b.position.copy()
+        if bc.x<0:
+            bc.x=-bc._x
+        if bc.x>180:
+            bc._x=360-bc.x
+        if bc.y<0:
+            bc._y=-bc.y
+        if bc.y>90:
+            bc._y=180-bc.y
+        n+=1
+    return bc
 
 """
 ========================strategy===================================
 """
+
+
 def random(mystate):
     return SoccerAction(Vector2D.create_random()-0.5,
                         Vector2D.create_random())
+
+
 
 def fonceur(m):
     v=m.b_v.norm
@@ -74,11 +93,9 @@ def fonceur(m):
     else:
         s=m.goal-m.b_p
         s.scale(1.0/(m.goal-m.b_p).norm)
-        
-    while((b.position-m.p).norm>n):
-        b.next(Vector2D(0,0))
-        n+=1
-    a=m.d_vec
+    
+    a=calculdepos(b,m.p)-m.p
+
     
     if (m.goal-m.b_p).norm<30:
         s=m.goal-m.b_p
@@ -113,10 +130,8 @@ def reflexion(m):
     b=m.state.ball
     n=0
       
-    while((b.position-m.p).norm>n):
-        b.next(Vector2D(0,0))
-        n+=1
-    a=m.d_vec
+    
+    a=calculdepos(b,m.p)-m.p
     
     if m.b_p.y>45:
         s=90
@@ -125,7 +140,7 @@ def reflexion(m):
     
     s=Vector2D(m.p.x+10-(m.id_team-1)*20,s)-m.b_p
 
-    if m.d>2:
+    if m.d>1.65:
         return SoccerAction(a, Vector2D(0,0))
     return SoccerAction(a, s)
     
@@ -166,7 +181,7 @@ def catchexact(m):
     while((b.position-p).norm>n):
         b.next(Vector2D(0,0))
         n+=1
-    a=m.d_vec
+    a=a=b.position - m.p
 
     if m.d>2:
         return SoccerAction(a, Vector2D(0,0))
@@ -214,6 +229,64 @@ def QuickFollow(mystate):
     return SoccerAction(d,
                         Vector2D(0,45)-mystate.state.ball.position)
                         
+def passage(mystate):
+    
+    e_t = 3 - mystate.id_team
+    #enemy team (int)
+        
+    b_p = mystate.state.ball.position
+    #ball position (vector)
+    b_v =mystate.state.ball.vitesse
+    #ball vitesse (vector) 
+    
+    
+    p = mystate.p
+    #position player (vector)
+    d = mystate.d
+    #distance player to ball (float)  
+    d_vec = mystate.d_vec
+    #distance player to ball (vector)
+    goal = mystate.goal
+    #position goal (vector)
+    
+    e_p = mystate.state.player(e_t,mystate.id_player).position
+    #position enemie (vector)
+    e_d = (b_p-e_p).norm
+    #distance enemie player to ball (float)
+    e_d_vec = b_p-e_p
+    #distance enemie player to ball (vector)
+    e_goal = Vector2D(150-(e_t-1)*150,45)
+    #goal enemie (vector)
+    
+    a_p = mystate.state.player(mystate.id_team,1-mystate.id_player).position
+    #position allie (vector)
+    a_d = (b_p-a_p).norm
+    #distance allie (float)
+    a_d_vec = b_p-a_p
+    #distance allie (vector)
+    
+    ea_p = mystate.state.player(e_t,1-mystate.id_player).position
+    #position enemie allie (vector)
+    ea_d = (b_p-ea_p).norm
+    #distance enemie allie (float)
+    ea_d_vec = b_p-ea_p
+    #distance enemie allie (vector)
+    
+    
+    if a_d<e_d-0.2 and a_d<ea_d-0.2 and a_d<d-0.2 and ((e_goal-a_p).norm<(e_goal-e_p).norm or (e_goal-a_p).norm<(e_goal-ea_p).norm) and ((e_p-a_p).norm<5 or (ea_p-a_p).norm<5):
+        if p.y>45:
+            s=-20
+        else:
+            s=20
+        return SoccerAction(d_vec+Vector2D(20-(mystate.id_team-1)*40,s),goal-b_p)
+    #allie est le plus proche à ball, préparer à récupérer la passage
+    
+    if d<2 and d<e_d-0.2 and d<ea_d-0.2 and d<a_d-0.2 and ((e_goal-p).norm<(e_goal-e_p).norm or (e_goal-p).norm<(e_goal-ea_p).norm) and ((e_p-p).norm<5 or (ea_p-p).norm<5):
+        s=a_p-b_p+Vector2D(10-(mystate.id_team-1)*20)
+        s.scale(0.1)        
+        return SoccerAction(d_vec,s)
+        
+"""                 
 def Smart1v1(mystate):
     e_t = 3 - mystate.id_team
     #enemy team (int)
@@ -280,7 +353,7 @@ def Smart1v1(mystate):
     s.scale(0.7/(goal-b_p).norm)
     return SoccerAction(d_vec,s)
     #fonceur
-   
+"""
     
 def Smart1v1ver2(m):
     e_t = 3 - m.id_team
@@ -289,10 +362,8 @@ def Smart1v1ver2(m):
     p=m.p
     b=m.state.ball
     n=0
-    while((b.position-p).norm>n):
-        b.next(Vector2D(0,0))
-        n+=1
-    a=m.d_vec
+    
+    a=calculdepos(b,m.p)-m.p
     
     e_t = 3 - m.id_team
     e_p = m.state.player(e_t,m.id_player).position
@@ -329,7 +400,7 @@ def Smart2v2(mystate):
     #ball vitesse (vector) 
     
     
-    p = mystate.pos
+    p = mystate.p
     #position player (vector)
     d = mystate.d
     #distance player to ball (float)  
@@ -376,7 +447,7 @@ def Smart2v2(mystate):
         return SoccerAction(d_vec,s)
     #passage
     
-    return Smart1v1(Smart1v1ver2)
+    return Smart1v1ver2(mystate)
     
     
     

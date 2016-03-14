@@ -15,10 +15,10 @@ from soccersimulator import SoccerTeam, SoccerMatch
 from soccersimulator import Vector2D, Player, SoccerTournament
 from soccersimulator import KeyboardStrategy,show
 
-import sys
-sys.path.append("./sem6/")
-import luluperet
-from luluperet import team1
+import os
+fn=os.path.join(os.path.dirname(os.path.realpath(__file__)),"monfichier.pkl")
+tree=cPickle.load(file(fn))
+
 
 
 
@@ -61,8 +61,6 @@ st=DTreeStrategy(tree,dic,gen_features)
 #team1=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(random))])
 #team2=SoccerTeam("team2",[Player("t2j1",StateLessStrategy(Smart1v1))])
 
-team1m=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(random)),Player("t1j2",StateLessStrategy(Smart1v1))])
-team2m=SoccerTeam("team1",[Player("t2j1",StateLessStrategy(Smart2v2)),Player("t2j2",StateLessStrategy(Smart2v2))])
 
 #team1=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(fonceur)),Player("t1j2",StateLessStrategy(fonceur)),Player("t1j3",StateLessStrategy(fonceur)),Player("t1j4",StateLessStrategy(fonceur))])
 #team2=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(Smart1v1)),Player("t1j2",StateLessStrategy(Smart1v1)),Player("t1j3",StateLessStrategy(Smart1v1)),Player("t1j4",StateLessStrategy(Smart1v1))])
@@ -74,28 +72,29 @@ RF = StateLessStrategy(reflexion)
 DF = StateLessStrategy(defent)
 DL = StateLessStrategy(defent_l)
 SH = StateLessStrategy(shooter)
+PA = StateLessStrategy(passage)
 
 strat.add("d",FS)
 strat.add("q",RF)
 strat.add("s",DF)
 strat.add("z",DL)
 strat.add("f",SH)
-
+strat.add("a",PA)
 
 
 
 
 
 player1 = Player("j1",strat)
-player2 = Player("j2",st)
+player2 = Player("j2",strat)
 
 
-team1m=SoccerTeam("team1",[player1])
-team2m=SoccerTeam("team2",[player2])
-match=SoccerMatch(team1m,team1)
+team1=SoccerTeam("team1",[Player("t1j2",StateLessStrategy(Smart2v2)),Player("t1j2",StateLessStrategy(Smart2v2))])
+team2=SoccerTeam("team2",[player1,Player("t1j2",StateLessStrategy(Smart2v2))])
+match=SoccerMatch(team1,team2)
 
 show(match)
-strat.write("monfichier.exp")
+#strat.write("monfichier2v2.exp")
 
 
 
