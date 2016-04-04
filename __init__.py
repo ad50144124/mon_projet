@@ -1,2 +1,2 @@
 
-from project1 import team1, team2, team4, teamIA
+from tmesolo import team1, team2,
