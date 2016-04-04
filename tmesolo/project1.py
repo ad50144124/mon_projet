@@ -57,8 +57,6 @@ class DTreeStrategy(BaseStrategy):
 dic = {"fonceur":StateLessStrategy(fonceur),"reflexion":StateLessStrategy(reflexion),"defent":StateLessStrategy(defent),"defent_l":StateLessStrategy(defent_l), "shooter":StateLessStrategy(shooter)}
 st=DTreeStrategy(tree,dic,gen_features)
 
-tab = np.ndarray((3,3,2,2,3))
-
 
 #team1=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(random))])
 #team2=SoccerTeam("team2",[Player("t2j1",StateLessStrategy(Smart1v1))])
@@ -87,25 +85,16 @@ strat.add("a",PA)
 
 
 
-player1 = Player("j1",strat)
-player2 = Player("j2",strat)
 
-
-team1=SoccerTeam("team1",[Player("t1j2",StateLessStrategy(Smart2v2)),Player("t1j2",StateLessStrategy(Smart2v2))])
-team2=SoccerTeam("team2",[player1,Player("t1j2",StateLessStrategy(Smart2v2))])
-match=SoccerMatch(team1,team2)
-
-show(match)
-#strat.write("monfichier2v2.exp")
+player1 = Player("j1",st)
+player2 = Player("j2",st)
 
 
 
-#match=SoccerMatch(team1,team2)
-#soccersimulator.show(match)
+     
 
-#tournoi = SoccerTournament(1)
-#tournoi.add_team(team1)
-#tournoi.add_team(team2)
 
-#tournoi.play()
-#soccersimulator.show(tournoi)
+team1=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(Smart1v1ver2))])
+team2=SoccerTeam("team1",[player1,Player("t1j2",StateLessStrategy(Smart2v2))])
+team4=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(Smart1v1ver2)),Player("t1j2",StateLessStrategy(Smart1v1ver2)),Player("t1j3",StateLessStrategy(Smart1v1ver2)),Player("t1j4",StateLessStrategy(Smart1v1ver2))])
+teamIA=SoccerTeam("team1",[player1,Player("t1j2",StateLessStrategy(Smart2v2))])

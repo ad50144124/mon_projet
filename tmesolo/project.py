@@ -57,7 +57,7 @@ class DTreeStrategy(BaseStrategy):
 dic = {"fonceur":StateLessStrategy(fonceur),"reflexion":StateLessStrategy(reflexion),"defent":StateLessStrategy(defent),"defent_l":StateLessStrategy(defent_l), "shooter":StateLessStrategy(shooter)}
 st=DTreeStrategy(tree,dic,gen_features)
 
-tab = np.ndarray((3,3,2,2,3))
+
 
 
 #team1=SoccerTeam("team1",[Player("t1j1",StateLessStrategy(random))])
@@ -71,16 +71,10 @@ strat = KeyboardStrategy() #ou pour une sauvegarde automatique
 #KeyboardStrategy(fn="monfichier.exp")
 FS = StateLessStrategy(fonceur)
 RF = StateLessStrategy(reflexion)
-DF = StateLessStrategy(defent)
-DL = StateLessStrategy(defent_l)
-SH = StateLessStrategy(shooter)
 PA = StateLessStrategy(passage)
 
 strat.add("d",FS)
 strat.add("q",RF)
-strat.add("s",DF)
-strat.add("z",DL)
-strat.add("f",SH)
 strat.add("a",PA)
 
 
@@ -91,7 +85,7 @@ player1 = Player("j1",strat)
 player2 = Player("j2",strat)
 
 
-team1=SoccerTeam("team1",[Player("t1j2",StateLessStrategy(Smart2v2)),Player("t1j2",StateLessStrategy(Smart2v2))])
+team1=SoccerTeam("team1",[Player("t1j2",StateLessStrategy(fonceur)),Player("t1j2",StateLessStrategy(Smart2v2))])
 team2=SoccerTeam("team2",[player1,Player("t1j2",StateLessStrategy(Smart2v2))])
 match=SoccerMatch(team1,team2)
 
